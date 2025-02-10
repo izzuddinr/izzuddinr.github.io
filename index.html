@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Tools Hub</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: 90px; /* Added to account for fixed header */
+            line-height: 1.6;
+            color: #333;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 5px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        header .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .nav-links a:hover {
+            background-color: #34495e;
+        }
+        .nav-links a.active {
+            background-color: #3498db;
+        }
+        main {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .tool-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1.5rem;
+            background-color: #f9f9f9;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .tool-card h2 {
+            color: #3498db;
+            margin-top: 0;
+        }
+        .tool-card p {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+        .tool-card a {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .tool-card a:hover {
+            background-color: #2980b9;
+        }
+        footer {
+            margin-top: 3rem;
+            padding-top: 1rem;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">DevTools Hub</div>
+                <div class="nav-links">
+                    <a href="index.html" class="active">Home</a>
+                    <a href="pay_req_to_json.html">Payment Converter</a>
+                    <a href="#">JSON Tools</a>
+                    <a href="#">Text Utilities</a>
+                    <a href="#">About</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <main>
+        <div class="tool-card">
+            <h2>Payment Request Converter</h2>
+            <p>Convert Payment Request strings to structured JSON format for easier analysis and processing.</p>
+            <a href="pay_req_to_json.html">Use Tool</a>
+        </div>
+        
+        <div class="tool-card">
+            <h2>JSON Formatter</h2>
+            <p>Beautify, minify, and validate JSON data with this easy-to-use formatting tool.</p>
+            <a href="#">Coming Soon</a>
+        </div>
+        
+        <div class="tool-card">
+            <h2>Text Diff Checker</h2>
+            <p>Compare two text files and highlight the differences between them.</p>
+            <a href="#">Coming Soon</a>
+        </div>
+        
+        <div class="tool-card">
+            <h2>Base64 Encoder/Decoder</h2>
+            <p>Quickly encode or decode Base64 strings for your development needs.</p>
+            <a href="#">Coming Soon</a>
+        </div>
+        
+        <div class="tool-card">
+            <h2>UUID Generator</h2>
+            <p>Generate random UUIDs/GUIDs for use in your applications.</p>
+            <a href="#">Coming Soon</a>
+        </div>
+        
+        <div class="tool-card">
+            <h2>Regex Tester</h2>
+            <p>Test and debug regular expressions with a visual, interactive tool.</p>
+            <a href="#">Coming Soon</a>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 Izzuddinr</p>
+    </footer>
+</body>
+</html>

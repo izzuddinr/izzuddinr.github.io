@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Request to JSON Converter | DevTools Hub</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: 90px; /* Added to account for fixed header */
+            line-height: 1.6;
+            color: #333;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 5px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        header .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .nav-links a:hover {
+            background-color: #34495e;
+        }
+        .nav-links a.active {
+            background-color: #3498db;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .section {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            font-family: monospace;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #formatOptions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .format-button {
+            background-color: #2196F3;
+        }
+        .format-button:hover {
+            background-color: #0b7dda;
+        }
+        .copy-button {
+            background-color: #ff9800;
+        }
+        .copy-button:hover {
+            background-color: #e68a00;
+        }
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        #messageBox {
+            display: none;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+        footer {
+            margin-top: 3rem;
+            padding-top: 1rem;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">DevTools Hub</div>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="pay_req_to_json.html" class="active">Payment Converter</a>
+                    <a href="#">JSON Tools</a>
+                    <a href="#">Text Utilities</a>
+                    <a href="#">About</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>Payment Request to JSON Converter</h1>
+        
+        <div class="section">
+            <h2>Input: Payment Request String</h2>
+            <label for="inputText">Paste your Payment Request string below:</label>
+            <textarea id="inputText" placeholder="Paste the Payment Request string here..."></textarea>
+            <div class="buttons">
+                <button id="convertBtn">Convert to JSON</button>
+            </div>
+        </div>
+
+        <div id="messageBox" class="message">
+            <!-- Messages will appear here -->
+        </div>
+
+        <div class="section">
+            <h2>Output: JSON Format</h2>
+            <div id="formatOptions">
+                <button id="beautifyBtn" class="format-button">Beautify</button>
+                <button id="minifyBtn" class="format-button">Minify</button>
+                <button id="copyBtn" class="copy-button">Copy to Clipboard</button>
+            </div>
+            <textarea id="outputText" readonly placeholder="JSON output will appear here..."></textarea>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Izzuddinr</p>
+    </footer>
+
+    <script>
+        // Main function to parse PaymentRequest string into JSON
+        function parsePaymentRequest(input) {
+            try {
+                // Remove leading/trailing whitespace
+                input = input.trim();
+                
+                // Check if input starts with "PaymentRequest("
+                if (!input.startsWith('PaymentRequest(')) {
+                    throw new Error('Input must start with "PaymentRequest("');
+                }
+                
+                // Extract the content inside the outermost parentheses
+                const content = input.substring('PaymentRequest('.length, input.length - 1);
+                
+                // Parse the content into a JSON object
+                const result = parseNestedObject(content);
+                
+                return result;
+            } catch (error) {
+                throw new Error(`Failed to parse payment request: ${error.message}`);
+            }
+        }
+
+        // Function to parse nested objects
+        function parseNestedObject(content) {
+            const result = {};
+            let currentPos = 0;
+            let currentKey = '';
+            let expectingValue = false;
+            
+            while (currentPos < content.length) {
+                if (expectingValue) {
+                    // Parse the value
+                    const valueResult = parseValue(content.substring(currentPos));
+                    result[currentKey] = valueResult.value;
+                    currentPos += valueResult.length;
+                    expectingValue = false;
+                    
+                    // Skip comma if present
+                    if (currentPos < content.length && content[currentPos] === ',') {
+                        currentPos++;
+                        // Skip whitespace
+                        while (currentPos < content.length && /\s/.test(content[currentPos])) {
+                            currentPos++;
+                        }
+                    }
+                } else {
+                    // Parse the key
+                    const keyEnd = content.indexOf('=', currentPos);
+                    if (keyEnd === -1) {
+                        throw new Error(`No '=' found for key at position ${currentPos}`);
+                    }
+                    
+                    currentKey = content.substring(currentPos, keyEnd).trim();
+                    currentPos = keyEnd + 1;
+                    expectingValue = true;
+                    
+                    // Skip whitespace
+                    while (currentPos < content.length && /\s/.test(content[currentPos])) {
+                        currentPos++;
+                    }
+                }
+            }
+            
+            return result;
+        }
+
+        // Function to parse a value, which can be a nested object, array, or primitive
+        function parseValue(content) {
+            // Skip whitespace
+            let start = 0;
+            while (start < content.length && /\s/.test(content[start])) {
+                start++;
+            }
+            
+            // Check for null
+            if (content.substring(start, start + 4).toLowerCase() === 'null') {
+                return { value: null, length: start + 4 };
+            }
+            
+            // Check for nested object
+            if (content[start] === '[') {
+                return parseArray(content.substring(start));
+            } else if (/[A-Za-z]/.test(content[start])) {
+                // This is either a nested object or a simple value
+                const match = content.substring(start).match(/^([A-Za-z][A-Za-z0-9]*)\(/);
+                if (match) {
+                    // It's a nested object
+                    const objectType = match[1];
+                    
+                    // Special handling for CustomNameValuePair
+                    if (objectType === 'CustomNameValuePair') {
+                        let depth = 0;
+                        let endPos = start + objectType.length + 1; // Start after the opening parenthesis
+                        
+                        while (endPos < content.length) {
+                            if (content[endPos] === '(') {
+                                depth++;
+                            } else if (content[endPos] === ')') {
+                                if (depth === 0) {
+                                    break;
+                                }
+                                depth--;
+                            }
+                            endPos++;
+                        }
+                        
+                        if (endPos >= content.length) {
+                            throw new Error(`No matching closing parenthesis for CustomNameValuePair starting at position ${start}`);
+                        }
+                        
+                        const pairText = content.substring(start, endPos + 1);
+                        const pairObject = parseArrayItem(pairText);
+                        
+                        return {
+                            value: pairObject,
+                            length: endPos + 1 - start
+                        };
+                    } else {
+                        // Standard nested object
+                        const nestedContent = findMatchingClosingParenthesis(content.substring(start + objectType.length + 1));
+                        if (nestedContent === null) {
+                            throw new Error(`No matching closing parenthesis for object starting at position ${start}`);
+                        }
+                        
+                        const nestedObject = parseNestedObject(nestedContent);
+                        return {
+                            value: nestedObject,
+                            length: start + objectType.length + 1 + nestedContent.length + 1
+                        };
+                    }
+                } else {
+                    // It's a simple value (string, number, etc.)
+                    const valueEnd = findValueEnd(content.substring(start));
+                    const value = content.substring(start, start + valueEnd).trim();
+                    
+                    // Try to convert to appropriate type
+                    if (value === 'true') {
+                        return { value: true, length: start + valueEnd };
+                    } else if (value === 'false') {
+                        return { value: false, length: start + valueEnd };
+                    } else if (!isNaN(Number(value))) {
+                        return { value: Number(value), length: start + valueEnd };
+                    } else {
+                        return { value: value, length: start + valueEnd };
+                    }
+                }
+            } else {
+                // It's a simple value (string, number, etc.)
+                const valueEnd = findValueEnd(content.substring(start));
+                const value = content.substring(start, start + valueEnd).trim();
+                
+                // Try to convert to appropriate type
+                if (value === 'true') {
+                    return { value: true, length: start + valueEnd };
+                } else if (value === 'false') {
+                    return { value: false, length: start + valueEnd };
+                } else if (!isNaN(Number(value))) {
+                    return { value: Number(value), length: start + valueEnd };
+                } else {
+                    return { value: value, length: start + valueEnd };
+                }
+            }
+        }
+
+        // Function to find the end of a simple value
+        function findValueEnd(content) {
+            let end = 0;
+            while (end < content.length) {
+                if (content[end] === ',' || content[end] === ')') {
+                    break;
+                }
+                end++;
+            }
+            return end;
+        }
+
+        // Function to find matching closing parenthesis
+        function findMatchingClosingParenthesis(content) {
+            let depth = 0;
+            let pos = 0;
+            
+            while (pos < content.length) {
+                if (content[pos] === '(') {
+                    depth++;
+                } else if (content[pos] === ')') {
+                    if (depth === 0) {
+                        return content.substring(0, pos);
+                    }
+                    depth--;
+                }
+                pos++;
+            }
+            
+            return null;
+        }
+
+        // Function to parse array
+        function parseArray(content) {
+            // Verify that the content starts with '['
+            if (content[0] !== '[') {
+                throw new Error('Array must start with "["');
+            }
+            
+            // Find the matching closing bracket
+            let depth = 1;
+            let pos = 1;
+            let start = 1;
+            const array = [];
+            
+            // Handle special case for custom data pairs which need more careful parsing
+            if (content.includes('CustomNameValuePair')) {
+                let parenDepth = 0;
+                let inCustomPair = false;
+                let pairStart = 1;
+                
+                for (pos = 1; pos < content.length; pos++) {
+                    const char = content[pos];
+                    
+                    if (char === '(' && !inCustomPair && content.substring(pos - 'CustomNameValuePair'.length, pos) === 'CustomNameValuePair') {
+                        inCustomPair = true;
+                        parenDepth++;
+                        pairStart = pos - 'CustomNameValuePair'.length;
+                    } else if (char === '(') {
+                        parenDepth++;
+                    } else if (char === ')') {
+                        parenDepth--;
+                        if (parenDepth === 0 && inCustomPair) {
+                            // We've found the end of a CustomNameValuePair
+                            const pairText = content.substring(pairStart, pos + 1);
+                            array.push(parseArrayItem(pairText));
+                            inCustomPair = false;
+                        }
+                    } else if (char === ']') {
+                        if (depth === 1) {
+                            break;
+                        }
+                        depth--;
+                    } else if (char === '[') {
+                        depth++;
+                    }
+                }
+                
+                return { value: array, length: pos + 1 };
+            } else {
+                // Standard array parsing
+                while (pos < content.length) {
+                    if (content[pos] === '[') {
+                        depth++;
+                    } else if (content[pos] === ']') {
+                        depth--;
+                        if (depth === 0) {
+                            // Process the last item if there is one
+                            const item = content.substring(start, pos).trim();
+                            if (item.length > 0) {
+                                array.push(parseArrayItem(item));
+                            }
+                            break;
+                        }
+                    } else if (content[pos] === ',' && depth === 1) {
+                        // Process the item
+                        const item = content.substring(start, pos).trim();
+                        if (item.length > 0) {
+                            array.push(parseArrayItem(item));
+                        }
+                        start = pos + 1;
+                    }
+                    pos++;
+                }
+                
+                return { value: array, length: pos + 1 };
+            }
+        }
+
+        // Function to parse array item
+        function parseArrayItem(item) {
+            // Check if the item is a CustomNameValuePair
+            if (item.startsWith('CustomNameValuePair(')) {
+                // Extract the content inside parentheses
+                const pairContent = item.substring('CustomNameValuePair('.length, item.length - 1);
+                
+                // Split by comma, but be careful with nested values that might contain commas
+                const parts = [];
+                let currentPart = '';
+                let depth = 0;
+                
+                for (let i = 0; i < pairContent.length; i++) {
+                    const char = pairContent[i];
+                    if (char === '(' || char === '[') {
+                        depth++;
+                        currentPart += char;
+                    } else if (char === ')' || char === ']') {
+                        depth--;
+                        currentPart += char;
+                    } else if (char === ',' && depth === 0) {
+                        parts.push(currentPart.trim());
+                        currentPart = '';
+                    } else {
+                        currentPart += char;
+                    }
+                }
+                
+                if (currentPart.trim()) {
+                    parts.push(currentPart.trim());
+                }
+                
+                // Parse each part as a key-value pair
+                const result = {};
+                parts.forEach(part => {
+                    const equalPos = part.indexOf('=');
+                    if (equalPos !== -1) {
+                        const key = part.substring(0, equalPos).trim();
+                        const value = part.substring(equalPos + 1).trim();
+                        
+                        // Parse the value
+                        if (value === 'null') {
+                            result[key] = null;
+                        } else if (value === 'true') {
+                            result[key] = true;
+                        } else if (value === 'false') {
+                            result[key] = false;
+                        } else if (!isNaN(Number(value)) && value !== '') {
+                            result[key] = Number(value);
+                        } else {
+                            result[key] = value;
+                        }
+                    }
+                });
+                
+                return result;
+            } 
+            // Check if the item is another nested object
+            else if (item.match(/^([A-Za-z][A-Za-z0-9]*)\(/)) {
+                const match = item.match(/^([A-Za-z][A-Za-z0-9]*)\(/);
+                const objectType = match[1];
+                const nestedContent = item.substring(objectType.length + 1, item.length - 1);
+                return parseNestedObject(nestedContent);
+            } else {
+                // It's a simple value (string, number, etc.)
+                if (item === 'null') {
+                    return null;
+                } else if (item === 'true') {
+                    return true;
+                } else if (item === 'false') {
+                    return false;
+                } else if (!isNaN(Number(item))) {
+                    return Number(item);
+                } else {
+                    return item;
+                }
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputText = document.getElementById('inputText');
+            const outputText = document.getElementById('outputText');
+            const convertBtn = document.getElementById('convertBtn');
+            const beautifyBtn = document.getElementById('beautifyBtn');
+            const minifyBtn = document.getElementById('minifyBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const messageBox = document.getElementById('messageBox');
+
+            let jsonOutput = null;
+
+            function showMessage(message, isError = false) {
+                messageBox.textContent = message;
+                messageBox.style.display = 'block';
+                messageBox.className = isError ? 'message error' : 'message success';
+                
+                setTimeout(() => {
+                    messageBox.style.display = 'none';
+                }, 3000);
+            }
+
+            convertBtn.addEventListener('click', () => {
+                try {
+                    const input = inputText.value.trim();
+                    if (!input) {
+                        showMessage('Please enter a Payment Request string', true);
+                        return;
+                    }
+
+                    jsonOutput = parsePaymentRequest(input);
+                    outputText.value = JSON.stringify(jsonOutput, null, 2);
+                    showMessage('Conversion successful!');
+                } catch (error) {
+                    showMessage(`Error: ${error.message}`, true);
+                }
+            });
+
+            beautifyBtn.addEventListener('click', () => {
+                try {
+                    const json = JSON.parse(outputText.value);
+                    outputText.value = JSON.stringify(json, null, 2);
+                    showMessage('JSON beautified!');
+                } catch (error) {
+                    showMessage('Error beautifying JSON. Make sure the output is valid JSON.', true);
+                }
+            });
+
+            minifyBtn.addEventListener('click', () => {
+                try {
+                    const json = JSON.parse(outputText.value);
+                    outputText.value = JSON.stringify(json);
+                    showMessage('JSON minified!');
+                } catch (error) {
+                    showMessage('Error minifying JSON. Make sure the output is valid JSON.', true);
+                }
+            });
+
+            copyBtn.addEventListener('click', () => {
+                outputText.select();
+                document.execCommand('copy');
+                showMessage('JSON copied to clipboard!');
+            });
+
+            // Initial conversion when page loads
+            if (inputText.value.trim()) {
+                convertBtn.click();
+            }
+        });
+    </script>
