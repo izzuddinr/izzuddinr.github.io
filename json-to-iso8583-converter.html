@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON to ISO8583 Converter</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: 90px;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 5px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        header .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background-color: #34495e;
+        }
+        
+        .nav-links a.active {
+            background-color: #3498db;
+        }
+        
+        main {
+            margin-top: 2rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1.5rem;
+            background-color: #f9f9f9;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .section h3 {
+            color: #3498db;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .page-title {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+        
+        .page-subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            background-color: white;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+        }
+        
+        .mapping-section {
+            grid-column: 1 / -1;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1.5rem;
+            background-color: #f9f9f9;
+            margin-bottom: 2rem;
+        }
+        
+        .mapping-section h3 {
+            color: #3498db;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .mapping-section p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .mapping-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 1rem;
+        }
+        
+        .mapping-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .mapping-item label {
+            min-width: 60px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .mapping-item input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .mapping-item input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .reset-btn {
+            background-color: #e74c3c;
+        }
+        
+        .reset-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .output-section {
+            grid-column: 1 / -1;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1.5rem;
+            background-color: #f9f9f9;
+        }
+        
+        .output-section h3 {
+            color: #3498db;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .output-tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 1rem;
+        }
+        
+        .tab {
+            padding: 0.5rem 1rem;
+            background: #e9ecef;
+            border: none;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            color: #666;
+        }
+        
+        .tab.active {
+            background: #3498db;
+            color: white;
+        }
+        
+        .tab:hover:not(.active) {
+            background: #d6dbdf;
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: 0 4px 4px 4px;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            min-height: 200px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .iso-field {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .iso-field:last-child {
+            border-bottom: none;
+        }
+        
+        .field-label {
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 80px;
+        }
+        
+        .field-value {
+            font-family: 'Courier New', monospace;
+            color: #666;
+            word-break: break-all;
+        }
+        
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        footer {
+            margin-top: 3rem;
+            padding-top: 1rem;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .mapping-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                margin: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">DevTools Hub</div>
+                <div class="nav-links">
+                    <a href="index.html" class="active">Home</a>
+                    <a href="pay_req_to_json.html">Payment Converter</a>
+                    <a href="json-to-iso8583-converter.html">JSON to ISO8583</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <main>
+        <h1 class="page-title">JSON to ISO8583 Converter</h1>
+        <p class="page-subtitle">Convert JSON payment data to ISO8583 message format with customizable field mappings</p>
+            <div class="grid">
+                <div class="section">
+                    <h3>JSON Input</h3>
+                    <textarea id="jsonInput" placeholder="Paste your JSON data here..."></textarea>
+                </div>
+                
+                <div class="section">
+                    <h3>JSON Structure</h3>
+                    <textarea id="jsonStructure" readonly placeholder="JSON structure will appear here..."></textarea>
+                </div>
+            </div>
+            
+            <div class="mapping-section">
+                <h3>ISO8583 Field Mappings</h3>
+                <p>Map JSON paths to ISO8583 Data Elements (DE). Use dot notation for nested fields (e.g., merchantData.merchantName)</p>
+                <div class="mapping-grid" id="mappingGrid">
+                    <!-- Mapping fields will be generated here -->
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button onclick="convertToISO()">Convert to ISO8583</button>
+                <button onclick="resetAll()" class="reset-btn">Reset All</button>
+            </div>
+            
+            <div class="section output-section">
+                <h3>ISO8583 Output</h3>
+                <div class="output-tabs">
+                    <button class="tab active" onclick="switchTab('formatted')">Formatted View</button>
+                    <button class="tab" onclick="switchTab('raw')">Raw Message</button>
+                    <button class="tab" onclick="switchTab('bitmap')">Bitmap Analysis</button>
+                </div>
+                
+                <div id="formatted" class="tab-content active">
+                    <div id="formattedOutput">No conversion performed yet</div>
+                </div>
+                
+                <div id="raw" class="tab-content">
+                    <textarea id="rawOutput" readonly style="height: 200px;">No conversion performed yet</textarea>
+                </div>
+                
+                <div id="bitmap" class="tab-content">
+                    <div id="bitmapOutput">No conversion performed yet</div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 Izzuddinr</p>
+    </footer>
+
+    <script>
+        // Common ISO8583 Data Elements
+        const commonDEs = [
+            { de: 'DE2', desc: 'Primary Account Number (PAN)' },
+            { de: 'DE3', desc: 'Processing Code' },
+            { de: 'DE4', desc: 'Amount, Transaction' },
+            { de: 'DE7', desc: 'Transmission Date & Time' },
+            { de: 'DE11', desc: 'Systems Trace Audit Number (STAN)' },
+            { de: 'DE12', desc: 'Time, Local Transaction' },
+            { de: 'DE13', desc: 'Date, Local Transaction' },
+            { de: 'DE15', desc: 'Date, Settlement' },
+            { de: 'DE18', desc: 'Merchant Category Code' },
+            { de: 'DE22', desc: 'Point of Service Entry Mode' },
+            { de: 'DE25', desc: 'Point of Service Condition Code' },
+            { de: 'DE32', desc: 'Acquiring Institution ID' },
+            { de: 'DE35', desc: 'Track 2 Data' },
+            { de: 'DE37', desc: 'Retrieval Reference Number' },
+            { de: 'DE38', desc: 'Authorization ID Response' },
+            { de: 'DE39', desc: 'Response Code' },
+            { de: 'DE41', desc: 'Card Acceptor Terminal ID' },
+            { de: 'DE42', desc: 'Card Acceptor ID Code' },
+            { de: 'DE43', desc: 'Card Acceptor Name/Location' },
+            { de: 'DE47', desc: 'Additional Data - National' },
+            { de: 'DE48', desc: 'Additional Data - Private' },
+            { de: 'DE49', desc: 'Currency Code, Transaction' },
+            { de: 'DE52', desc: 'PIN Data' },
+            { de: 'DE53', desc: 'Security Related Control Info' },
+            { de: 'DE55', desc: 'ICC Data' },
+            { de: 'DE62', desc: 'Private Use Fields' }
+        ];
+
+        let fieldMappings = {};
+        let currentJson = null;
+
+        // Initialize the page
+        function init() {
+            generateMappingFields();
+            loadExampleData();
+            
+            // Add event listener for JSON input
+            document.getElementById('jsonInput').addEventListener('input', function() {
+                updateJsonStructure();
+            });
+        }
+
+        // Generate mapping input fields
+        function generateMappingFields() {
+            const grid = document.getElementById('mappingGrid');
+            grid.innerHTML = '';
+            
+            commonDEs.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'mapping-item';
+                div.innerHTML = `
+                    <label>${item.de}:</label>
+                    <input type="text" id="mapping_${item.de}" placeholder="JSON path (e.g., merchantData.merchantName)" title="${item.desc}">
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        // Load example data
+        function loadExampleData() {
+            const exampleJson = `{
+  "createdAt": "2025-03-21T19:30:57Z",
+  "customData": [
+    { "name": "DE32", "value": "00003302" },
+    { "name": "DE47", "value": "FCA01\\\\TCC07\\\\" }
+  ],
+  "merchantData": {
+    "acquirerMerchantId": "123456789012347",
+    "acquirerTerminalId": "75327791",
+    "deviceSerialNumber": "216CCD836586",
+    "merchantCategoryCode": "1234",
+    "merchantLocation": {
+      "address": "Cnr Pitt St Mall, Market St",
+      "city": "Sydney",
+      "country": "AU",
+      "state": "New South Wales",
+      "zipCode": "2000"
+    },
+    "merchantName": "Domino's",
+    "organizationId": "06e097fa-79c6-4e3b-b709-41f427e4eeb7"
+  },
+  "paymentMethod": {
+    "cardData": {
+      "accountType": "DEFAULT",
+      "cardSchemeType": "VISA",
+      "cardType": "CREDIT",
+      "entryModeType": "INSERT",
+      "iccData": "",
+      "securityData": {
+        "maskedCardNumber": "400034******0505",
+        "e2eeKeyKsn": "FFFF1234560000000137",
+        "encTrack": "88DAB85BAB94EA5FF005BA23C726084A3E0573033632D1C0A3BFBFDBFB14D62",
+        "encryptionType": "E2EE_TDES_DUKPT",
+        "encPinData": "A7F36BFDEAFDA5A206DEA17BBB06C12E",
+        "pinFormatType": "ISOFORMAT0",
+        "pinKeyKsn": "FFFF1234560000000137"
+      }
+    },
+    "paymentType": "CARD"
+  },
+  "posConditionCode": "CARD_PRESENT",
+  "referenceData": {
+    "batchNumber": "001"
+  },
+  "requestId": "518712727810",
+  "transactionData": {
+    "totalAmount": {
+      "currencyCode": "036",
+      "value": 10000
+    },
+    "retrievalReferenceNumber": "616775193057",
+    "settlementDate": "0322",
+    "stan": "616775",
+    "txnType": "SALE"
+  }
+}`;
+
+            document.getElementById('jsonInput').value = exampleJson;
+            
+            // Set example mappings
+            const exampleMappings = {
+                'DE2': 'paymentMethod.cardData.securityData.maskedCardNumber',
+                'DE4': 'transactionData.totalAmount.value',
+                'DE11': 'transactionData.stan',
+                'DE15': 'transactionData.settlementDate',
+                'DE18': 'merchantData.merchantCategoryCode',
+                'DE32': 'customData[0].value',
+                'DE37': 'transactionData.retrievalReferenceNumber',
+                'DE41': 'merchantData.acquirerTerminalId',
+                'DE42': 'merchantData.acquirerMerchantId',
+                'DE43': 'merchantData.merchantName',
+                'DE47': 'customData[1].value',
+                'DE49': 'transactionData.totalAmount.currencyCode',
+                'DE52': 'paymentMethod.cardData.securityData.encPinData',
+                'DE55': 'paymentMethod.cardData.iccData'
+            };
+            
+            Object.keys(exampleMappings).forEach(de => {
+                const input = document.getElementById(`mapping_${de}`);
+                if (input) {
+                    input.value = exampleMappings[de];
+                }
+            });
+            
+            updateJsonStructure();
+        }
+
+        // Update JSON structure display
+        function updateJsonStructure() {
+            const jsonInput = document.getElementById('jsonInput').value;
+            const structureArea = document.getElementById('jsonStructure');
+            
+            if (!jsonInput.trim()) {
+                structureArea.value = '';
+                return;
+            }
+            
+            try {
+                currentJson = JSON.parse(jsonInput);
+                const paths = extractJsonPaths(currentJson);
+                structureArea.value = paths.join('\n');
+            } catch (e) {
+                structureArea.value = 'Invalid JSON: ' + e.message;
+                currentJson = null;
+            }
+        }
+
+        // Extract all JSON paths
+        function extractJsonPaths(obj, prefix = '') {
+            const paths = [];
+            
+            for (const key in obj) {
+                const currentPath = prefix ? `${prefix}.${key}` : key;
+                
+                if (Array.isArray(obj[key])) {
+                    paths.push(`${currentPath}[]`);
+                    obj[key].forEach((item, index) => {
+                        if (typeof item === 'object' && item !== null) {
+                            paths.push(...extractJsonPaths(item, `${currentPath}[${index}]`));
+                        } else {
+                            paths.push(`${currentPath}[${index}]`);
+                        }
+                    });
+                } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    paths.push(...extractJsonPaths(obj[key], currentPath));
+                } else {
+                    paths.push(currentPath);
+                }
+            }
+            
+            return paths;
+        }
+
+        // Get value from JSON path
+        function getValueFromPath(obj, path) {
+            try {
+                // Handle array notation
+                const parts = path.split(/[\.\[\]]+/).filter(p => p !== '');
+                let current = obj;
+                
+                for (const part of parts) {
+                    if (current === null || current === undefined) {
+                        return null;
+                    }
+                    
+                    if (!isNaN(part)) {
+                        current = current[parseInt(part)];
+                    } else {
+                        current = current[part];
+                    }
+                }
+                
+                return current;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // Convert to ISO8583
+        function convertToISO() {
+            if (!currentJson) {
+                showError('Please enter valid JSON data first');
+                return;
+            }
+            
+            // Collect field mappings
+            const mappings = {};
+            commonDEs.forEach(item => {
+                const input = document.getElementById(`mapping_${item.de}`);
+                if (input && input.value.trim()) {
+                    mappings[item.de] = input.value.trim();
+                }
+            });
+            
+            if (Object.keys(mappings).length === 0) {
+                showError('Please configure at least one field mapping');
+                return;
+            }
+            
+            // Extract values
+            const isoData = {};
+            const presentFields = [];
+            
+            Object.keys(mappings).forEach(de => {
+                const path = mappings[de];
+                const value = getValueFromPath(currentJson, path);
+                
+                if (value !== null && value !== undefined && value !== '') {
+                    isoData[de] = value.toString();
+                    presentFields.push(parseInt(de.replace('DE', '')));
+                }
+            });
+            
+            if (presentFields.length === 0) {
+                showError('No valid data found for the configured mappings');
+                return;
+            }
+            
+            // Generate outputs
+            generateFormattedOutput(isoData);
+            generateRawOutput(isoData, presentFields);
+            generateBitmapOutput(presentFields);
+            
+            showSuccess(`Successfully converted ${presentFields.length} fields to ISO8583 format`);
+        }
+
+        // Generate formatted output
+        function generateFormattedOutput(isoData) {
+            const output = document.getElementById('formattedOutput');
+            let html = '<div style="font-family: monospace;">';
+            
+            // MTI (Message Type Indicator)
+            html += '<div class="iso-field"><span class="field-label">MTI:</span><span class="field-value">0200</span></div>';
+            
+            // Sort DEs numerically
+            const sortedDEs = Object.keys(isoData).sort((a, b) => {
+                return parseInt(a.replace('DE', '')) - parseInt(b.replace('DE', ''));
+            });
+            
+            sortedDEs.forEach(de => {
+                const deNum = de.replace('DE', '');
+                const desc = commonDEs.find(item => item.de === de)?.desc || 'Unknown';
+                html += `<div class="iso-field">
+                    <span class="field-label">${de}:</span>
+                    <span class="field-value">${isoData[de]} <em>(${desc})</em></span>
+                </div>`;
+            });
+            
+            html += '</div>';
+            output.innerHTML = html;
+        }
+
+        // Generate raw ISO8583 message
+        function generateRawOutput(isoData, presentFields) {
+            const output = document.getElementById('rawOutput');
+            
+            // Generate bitmap
+            const bitmap = generateBitmap(presentFields);
+            
+            // Start with MTI
+            let message = '0200';
+            
+            // Add bitmap
+            message += bitmap;
+            
+            // Add data elements in order
+            const sortedDEs = Object.keys(isoData).sort((a, b) => {
+                return parseInt(a.replace('DE', '')) - parseInt(b.replace('DE', ''));
+            });
+            
+            sortedDEs.forEach(de => {
+                const value = isoData[de];
+                const deNum = parseInt(de.replace('DE', ''));
+                
+                // For simplicity, we'll use LLVAR format for variable length fields
+                if (deNum === 2 || deNum === 32 || deNum === 35 || deNum === 37 || deNum === 43) {
+                    message += value.length.toString().padStart(2, '0') + value;
+                } else {
+                    message += value;
+                }
+            });
+            
+            output.value = message;
+        }
+
+        // Generate bitmap
+        function generateBitmap(presentFields) {
+            const bitmap = new Array(128).fill(0);
+            
+            presentFields.forEach(field => {
+                if (field >= 1 && field <= 128) {
+                    bitmap[field - 1] = 1;
+                }
+            });
+            
+            // Convert to hex
+            let hex = '';
+            for (let i = 0; i < 128; i += 4) {
+                const nibble = bitmap.slice(i, i + 4).join('');
+                hex += parseInt(nibble, 2).toString(16).toUpperCase();
+            }
+            
+            return hex;
+        }
+
+        // Generate bitmap analysis
+        function generateBitmapOutput(presentFields) {
+            const output = document.getElementById('bitmapOutput');
+            const bitmap = generateBitmap(presentFields);
+            
+            let html = `<div><strong>Bitmap (Hex):</strong> ${bitmap}</div><br>`;
+            html += '<div><strong>Present Fields:</strong></div>';
+            html += '<div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin-top: 10px;">';
+            
+            presentFields.sort((a, b) => a - b).forEach(field => {
+                html += `<div style="background: #3498db; color: white; padding: 5px; text-align: center; border-radius: 4px; font-size: 12px;">DE${field}</div>`;
+            });
+            
+            html += '</div>';
+            output.innerHTML = html;
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            // Remove active class from all tabs and contents
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active class to selected tab and content
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Reset all fields
+        function resetAll() {
+            document.getElementById('jsonInput').value = '';
+            document.getElementById('jsonStructure').value = '';
+            document.getElementById('formattedOutput').innerHTML = 'No conversion performed yet';
+            document.getElementById('rawOutput').value = 'No conversion performed yet';
+            document.getElementById('bitmapOutput').innerHTML = 'No conversion performed yet';
+            
+            // Clear mappings
+            commonDEs.forEach(item => {
+                const input = document.getElementById(`mapping_${item.de}`);
+                if (input) input.value = '';
+            });
+            
+            currentJson = null;
+            clearMessages();
+        }
+
+        // Show error message
+        function showError(message) {
+            clearMessages();
+            const div = document.createElement('div');
+            div.className = 'error';
+            div.textContent = message;
+            document.querySelector('.button-group').appendChild(div);
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            clearMessages();
+            const div = document.createElement('div');
+            div.className = 'success';
+            div.textContent = message;
+            document.querySelector('.button-group').appendChild(div);
+        }
+
+        // Clear messages
+        function clearMessages() {
+            document.querySelectorAll('.error, .success').forEach(el => el.remove());
+        }
+
+        // Initialize when page loads
+        window.onload = init;
+    </script>
+</body>
+</html>
