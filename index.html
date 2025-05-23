@@ -41,10 +41,12 @@
             font-size: 1.5rem;
             font-weight: bold;
         }
+
         .nav-links {
             display: flex;
             gap: 20px;
         }
+
         .nav-links a {
             color: white;
             text-decoration: none;
@@ -52,47 +54,71 @@
             border-radius: 4px;
             transition: background-color 0.3s;
         }
+
         .nav-links a:hover {
             background-color: #34495e;
         }
+
         .nav-links a.active {
             background-color: #3498db;
         }
+
         main {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 2rem;
         }
+
         .tool-card {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 1.5rem;
-            background-color: #f9f9f9;
-            transition: transform 0.3s, box-shadow 0.3s;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 300px;
+            height: 220px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
+
         .tool-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
+
         .tool-card h2 {
-            color: #3498db;
-            margin-top: 0;
+            color: #2d3748;
+            margin: 0 0 12px 0;
+            font-size: 1.25rem;
+            font-weight: 600;
         }
+
         .tool-card p {
-            color: #666;
-            margin-bottom: 1.5rem;
+            color: #4a5568;
+            margin: 0 0 20px 0;
+            line-height: 1.6;
+            flex-grow: 1;
         }
+
         .tool-card a {
-            display: inline-block;
             background-color: #3498db;
             color: white;
-            padding: 0.5rem 1rem;
             text-decoration: none;
-            border-radius: 4px;
-            transition: background-color 0.3s;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: auto;
         }
+
         .tool-card a:hover {
-            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
         }
         footer {
             margin-top: 3rem;
@@ -109,9 +135,10 @@
             <nav>
                 <div class="logo">DevTools Hub</div>
                 <div class="nav-links">
-                    <a href="index.html" class="active">Home</a>
+                    <a href="#" class="active">Home</a>
                     <a href="pay_req_to_json.html">Payment Converter</a>
                     <a href="json-to-iso8583-converter.html">JSON to ISO8583</a>
+                    <a href="aes-crypto-calculator.html">Crypto Calculator</a>
                 </div>
             </nav>
         </div>
@@ -119,15 +146,27 @@
     
     <main>
         <div class="tool-card">
-            <h2>Payment Request Converter</h2>
-            <p>Convert Payment Request strings to structured JSON format for easier analysis and processing.</p>
+            <div>
+                <h2>Payment Request Converter</h2>
+                <p>Convert Payment Request strings to structured JSON format for easier analysis and processing.</p>
+            </div>
             <a href="pay_req_to_json.html">Use Tool</a>
         </div>
         
         <div class="tool-card">
-            <h2>JSON to ISO8583</h2>
-            <p>Convert Payment JSON fields to ISO8583 format.</p>
+            <div>
+                <h2>JSON to ISO8583</h2>
+                <p>Convert Payment JSON fields to ISO8583 format.</p>
+            </div>
             <a href="json-to-iso8583-converter.html">Use Tool</a>
+        </div>
+        
+        <div class="tool-card">
+            <div>
+                <h2>Crypto Calculator</h2>
+                <p>Encrypt and decrypt data using AES. Supports multiple modes, paddings, and Hex/ASCII formats for ISO 8583 and payment data conversion.</p>
+            </div>
+            <a href="aes-crypto-calculator.html">Use Tool</a>
         </div>
     </main>
     

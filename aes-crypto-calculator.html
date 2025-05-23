@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AES Cryptographic Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: 90px;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 5px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        header .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links a:hover {
+            background-color: #34495e;
+        }
+
+        .nav-links a.active {
+            background-color: #3498db;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .panel {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1.5rem;
+        }
+
+        .panel h2 {
+            color: #3498db;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.8rem;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.5rem 0.8rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            background: white;
+            border: 1px solid #ddd;
+            font-size: 0.9rem;
+        }
+
+        .radio-item:hover {
+            border-color: #3498db;
+            background: #f0f8ff;
+        }
+
+        .radio-item input {
+            margin-right: 6px;
+            accent-color: #3498db;
+        }
+
+        .radio-item.selected {
+            border-color: #3498db;
+            background: #f0f8ff;
+            color: #3498db;
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            background: white;
+            box-sizing: border-box;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+        }
+
+        .textarea-field {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.7rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-encrypt {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-encrypt:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-decrypt {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .btn-decrypt:hover {
+            background-color: #c0392b;
+        }
+
+        .output-section {
+            background: white;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+        }
+
+        .output-section.scrollable {
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output-section.scrollable .output-content {
+            flex: 1;
+            overflow-y: auto;
+            max-height: none;
+        }
+
+        .output-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.8rem;
+        }
+
+        .output-content {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #34495e;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            border-left: 3px solid #3498db;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .char-count {
+            font-size: 0.75rem;
+            color: #666;
+            text-align: right;
+            margin-top: 0.3rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .status-ready {
+            background: #27ae60;
+        }
+
+        .status-error {
+            background: #e74c3c;
+        }
+
+        footer {
+            margin-top: 3rem;
+            padding-top: 1rem;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">🔒 AES Cryptographic Calculator</div>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="pay_req_to_json.html">Payment Converter</a>
+                    <a href="json-to-iso8583-converter.html">JSON to ISO8583</a>
+                    <a href="#" class="active">Crypto Calculator</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="panel">
+            <h2>Configuration & Input</h2>
+            
+            <div class="section">
+                <div class="section-title">Algorithm</div>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" name="algorithm" value="128"> AES-128
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="algorithm" value="192"> AES-192
+                    </label>
+                    <label class="radio-item selected">
+                        <input type="radio" name="algorithm" value="256" checked> AES-256
+                    </label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Mode</div>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" name="mode" value="ECB"> ECB
+                    </label>
+                    <label class="radio-item selected">
+                        <input type="radio" name="mode" value="CBC" checked> CBC
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="mode" value="CFB"> CFB
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="mode" value="OFB"> OFB
+                    </label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Padding</div>
+                <div class="radio-group">
+                    <label class="radio-item selected">
+                        <input type="radio" name="padding" value="PKCS7" checked> PKCS#7
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="padding" value="PKCS5"> PKCS#5
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="padding" value="NoPadding"> No Padding
+                    </label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Data Input Format</div>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" name="dataInput" value="ASCII"> ASCII
+                    </label>
+                    <label class="radio-item selected">
+                        <input type="radio" name="dataInput" value="Hexadecimal" checked> Hexadecimal
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="dataInput" value="Base64"> Base64
+                    </label>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">🔑 Encryption Key</label>
+                <input type="text" class="input-field" id="keyInput" placeholder="Enter encryption key in hexadecimal format">
+                <div class="char-count" id="keyCount">0 characters</div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">🎯 Data</label>
+                <textarea class="input-field textarea-field" id="dataInput" placeholder="Enter data to encrypt/decrypt"></textarea>
+                <div class="char-count" id="dataCount">0 characters</div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">🔢 IV (Initialization Vector)</label>
+                <input type="text" class="input-field" id="ivInput" placeholder="Enter IV (leave empty for random generation)">
+                <div class="char-count" id="ivCount">0 characters</div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-encrypt" onclick="performEncryption()">🔒 Encrypt</button>
+                <button class="btn btn-decrypt" onclick="performDecryption()">🔓 Decrypt</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Results & Information</h2>
+            
+            <div class="output-section">
+                <div class="output-title">
+                    <span class="status-indicator status-ready"></span>Key Information
+                </div>
+                <div id="keyInfo" class="output-content">Ready to generate key information...</div>
+            </div>
+
+            <div class="output-section">
+                <div class="output-title">
+                    <span class="status-indicator status-ready"></span>Operation Result
+                </div>
+                <div id="operationResult" class="output-content">No operations performed yet.</div>
+            </div>
+
+            <div class="output-section scrollable">
+                <div class="output-title">
+                    <span class="status-indicator status-ready"></span>Operation Log
+                </div>
+                <div id="operationLog" class="output-content">System ready. Waiting for operations...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Izzuddinr - AES Cryptographic Calculator</p>
+    </footer>
+
+    <script>
+        // Character count updates
+        document.getElementById('keyInput').addEventListener('input', function() {
+            document.getElementById('keyCount').textContent = this.value.length + ' characters';
+        });
+
+        document.getElementById('dataInput').addEventListener('input', function() {
+            document.getElementById('dataCount').textContent = this.value.length + ' characters';
+        });
+
+        document.getElementById('ivInput').addEventListener('input', function() {
+            document.getElementById('ivCount').textContent = this.value.length + ' characters';
+        });
+
+        // Radio button selection highlighting
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                // Remove selected class from all items in the same group
+                document.querySelectorAll(`input[name="${this.name}"]`).forEach(r => {
+                    r.closest('.radio-item').classList.remove('selected');
+                });
+                // Add selected class to current item
+                this.closest('.radio-item').classList.add('selected');
+            });
+        });
+
+        function getSelectedValue(name) {
+            return document.querySelector(`input[name="${name}"]:checked`).value;
+        }
+
+        function generateRandomIV() {
+            return CryptoJS.lib.WordArray.random(16).toString();
+        }
+
+        function validateHex(str) {
+            return /^[0-9A-Fa-f]*$/.test(str) && str.length % 2 === 0;
+        }
+
+        function updateKeyInfo(key, algorithm, mode, iv) {
+            const keyInfo = document.getElementById('keyInfo');
+            const keySize = algorithm === '128' ? 32 : algorithm === '192' ? 48 : 64;
+            
+            let info = `Algorithm: AES-${algorithm}
+Mode: ${mode}
+Key Length: ${key.length} characters (${key.length * 4} bits)
+Required Length: ${keySize} characters (${keySize * 4} bits)
+IV: ${iv || 'Not used (ECB mode)'}
+Padding: ${getSelectedValue('padding')}
+Input Format: ${getSelectedValue('dataInput')}`;
+
+            keyInfo.textContent = info;
+        }
+
+        function logOperation(operation, status, details) {
+            const log = document.getElementById('operationLog');
+            const timestamp = new Date().toLocaleString();
+            const entry = `[${timestamp}] ${operation} ${status}\n${details}\n${'='.repeat(50)}\n`;
+            log.textContent = entry + log.textContent;
+        }
+
+        function performEncryption() {
+            try {
+                const key = document.getElementById('keyInput').value.trim();
+                const data = document.getElementById('dataInput').value.trim();
+                let iv = document.getElementById('ivInput').value.trim();
+                
+                const algorithm = getSelectedValue('algorithm');
+                const mode = getSelectedValue('mode');
+                const padding = getSelectedValue('padding');
+                const dataInput = getSelectedValue('dataInput');
+
+                if (!key || !data) {
+                    throw new Error('Key and Data are required');
+                }
+
+                if (!validateHex(key)) {
+                    throw new Error('Key must be in hexadecimal format');
+                }
+
+                const keySize = algorithm === '128' ? 32 : algorithm === '192' ? 48 : 64;
+                if (key.length !== keySize) {
+                    throw new Error(`Key must be ${keySize} characters (${keySize * 4} bits) for AES-${algorithm}`);
+                }
+
+                // Generate IV if needed and not provided
+                if (mode !== 'ECB' && !iv) {
+                    iv = generateRandomIV();
+                }
+
+                if (mode !== 'ECB' && iv && !validateHex(iv)) {
+                    throw new Error('IV must be in hexadecimal format');
+                }
+
+                if (mode !== 'ECB' && iv && iv.length !== 32) {
+                    throw new Error('IV must be 32 characters (128 bits)');
+                }
+
+                // Convert data based on input format
+                let dataToEncrypt;
+                if (dataInput === 'ASCII') {
+                    dataToEncrypt = CryptoJS.enc.Utf8.parse(data);
+                } else if (dataInput === 'Hexadecimal') {
+                    if (!validateHex(data)) {
+                        throw new Error('Data must be in valid hexadecimal format');
+                    }
+                    dataToEncrypt = CryptoJS.enc.Hex.parse(data);
+                } else if (dataInput === 'Base64') {
+                    dataToEncrypt = CryptoJS.enc.Base64.parse(data);
+                }
+
+                const keyWordArray = CryptoJS.enc.Hex.parse(key);
+                const ivWordArray = iv ? CryptoJS.enc.Hex.parse(iv) : undefined;
+
+                let encrypted;
+                const options = {
+                    iv: ivWordArray,
+                    padding: padding === 'NoPadding' ? CryptoJS.pad.NoPadding : CryptoJS.pad.Pkcs7
+                };
+
+                if (mode === 'ECB') {
+                    encrypted = CryptoJS.AES.encrypt(dataToEncrypt, keyWordArray, {
+                        mode: CryptoJS.mode.ECB,
+                        padding: options.padding
+                    });
+                } else if (mode === 'CBC') {
+                    encrypted = CryptoJS.AES.encrypt(dataToEncrypt, keyWordArray, {
+                        mode: CryptoJS.mode.CBC,
+                        iv: ivWordArray,
+                        padding: options.padding
+                    });
+                } else if (mode === 'CFB') {
+                    encrypted = CryptoJS.AES.encrypt(dataToEncrypt, keyWordArray, {
+                        mode: CryptoJS.mode.CFB,
+                        iv: ivWordArray,
+                        padding: options.padding
+                    });
+                } else if (mode === 'OFB') {
+                    encrypted = CryptoJS.AES.encrypt(dataToEncrypt, keyWordArray, {
+                        mode: CryptoJS.mode.OFB,
+                        iv: ivWordArray,
+                        padding: options.padding
+                    });
+                }
+
+                const result = encrypted.ciphertext.toString(CryptoJS.enc.Hex).toUpperCase();
+                
+                document.getElementById('operationResult').textContent = `Encrypted Data: ${result}`;
+                updateKeyInfo(key, algorithm, mode, iv);
+                
+                logOperation('ENCRYPTION', 'SUCCESSFUL', 
+                    `Data: ${data.substring(0, 50)}${data.length > 50 ? '...' : ''}
+Result: ${result}
+Algorithm: AES-${algorithm}
+Mode: ${mode}
+IV: ${iv || 'N/A'}`);
+
+                // Update IV field if it was generated
+                if (mode !== 'ECB' && !document.getElementById('ivInput').value.trim()) {
+                    document.getElementById('ivInput').value = iv;
+                    document.getElementById('ivCount').textContent = iv.length + ' characters';
+                }
+
+            } catch (error) {
+                document.getElementById('operationResult').textContent = `❌ Encryption Error: ${error.message}`;
+                logOperation('ENCRYPTION', 'FAILED', error.message);
+            }
+        }
+
+        function performDecryption() {
+            try {
+                const key = document.getElementById('keyInput').value.trim();
+                const data = document.getElementById('dataInput').value.trim();
+                const iv = document.getElementById('ivInput').value.trim();
+                
+                const algorithm = getSelectedValue('algorithm');
+                const mode = getSelectedValue('mode');
+                const padding = getSelectedValue('padding');
+                const dataInput = getSelectedValue('dataInput');
+
+                if (!key || !data) {
+                    throw new Error('Key and Data are required');
+                }
+
+                if (!validateHex(key)) {
+                    throw new Error('Key must be in hexadecimal format');
+                }
+
+                if (!validateHex(data)) {
+                    throw new Error('Encrypted data must be in hexadecimal format');
+                }
+
+                const keySize = algorithm === '128' ? 32 : algorithm === '192' ? 48 : 64;
+                if (key.length !== keySize) {
+                    throw new Error(`Key must be ${keySize} characters for AES-${algorithm}`);
+                }
+
+                if (mode !== 'ECB' && (!iv || iv.length !== 32)) {
+                    throw new Error('IV is required and must be 32 characters for non-ECB modes');
+                }
+
+                const keyWordArray = CryptoJS.enc.Hex.parse(key);
+                const ivWordArray = iv ? CryptoJS.enc.Hex.parse(iv) : undefined;
+                const encryptedData = CryptoJS.enc.Hex.parse(data);
+
+                let decrypted;
+                const options = {
+                    iv: ivWordArray,
+                    padding: padding === 'NoPadding' ? CryptoJS.pad.NoPadding : CryptoJS.pad.Pkcs7
+                };
+
+                const cipherParams = CryptoJS.lib.CipherParams.create({
+                    ciphertext: encryptedData
+                });
+
+                if (mode === 'ECB') {
+                    decrypted = CryptoJS.AES.decrypt(cipherParams, keyWordArray, {
+                        mode: CryptoJS.mode.ECB,
+                        padding: options.padding
+                    });
+                } else if (mode === 'CBC') {
+                    decrypted = CryptoJS.AES.decrypt(cipherParams, keyWordArray, {
+                        mode: CryptoJS.mode.CBC,
+                        iv: ivWordArray,
+                        padding: options.padding
+                    });
+                } else if (mode === 'CFB') {
+                    decrypted = CryptoJS.AES.decrypt(cipherParams, keyWordArray, {
+                        mode: CryptoJS.mode.CFB,
+                        iv: ivWordArray,
+                        padding: options.padding
+                    });
+                } else if (mode === 'OFB') {
+                    decrypted = CryptoJS.AES.decrypt(cipherParams, keyWordArray, {
+                        mode: CryptoJS.mode.OFB,
+                        iv: ivWordArray,
+                        padding: options.padding
+                    });
+                }
+
+                let result;
+                if (dataInput === 'ASCII') {
+                    result = decrypted.toString(CryptoJS.enc.Utf8);
+                } else if (dataInput === 'Hexadecimal') {
+                    result = decrypted.toString(CryptoJS.enc.Hex).toUpperCase();
+                } else if (dataInput === 'Base64') {
+                    result = decrypted.toString(CryptoJS.enc.Base64);
+                }
+
+                if (!result) {
+                    throw new Error('Decryption failed - invalid key, IV, or corrupted data');
+                }
+
+                document.getElementById('operationResult').textContent = `Decrypted Data: ${result}`;
+                updateKeyInfo(key, algorithm, mode, iv);
+                
+                logOperation('DECRYPTION', 'SUCCESSFUL', 
+                    `Data: ${data.substring(0, 50)}${data.length > 50 ? '...' : ''}
+Result: ${result}
+Algorithm: AES-${algorithm}
+Mode: ${mode}
+IV: ${iv || 'N/A'}`);
+
+            } catch (error) {
+                document.getElementById('operationResult').textContent = `❌ Decryption Error: ${error.message}`;
+                logOperation('DECRYPTION', 'FAILED', error.message);
+            }
+        }
+
+        // Initialize with sample data
+        window.addEventListener('load', function() {
+            document.getElementById('keyInput').value = '24CA524A3F5D8D224A3305AF69C6B4927392EC8B8E31E4723908CDB22B3464EB';
+            document.getElementById('dataInput').value = '456468011678925508080808080808080808';
+            document.getElementById('ivInput').value = '00000000000000000000000000000000';
+            
+            // Update character counts
+            document.getElementById('keyCount').textContent = '64 characters';
+            document.getElementById('dataCount').textContent = '36 characters';
+            document.getElementById('ivCount').textContent = '32 characters';
+            
+            updateKeyInfo('24CA524A3F5D8D224A3305AF69C6B4927392EC8B8E31E4723908CDB22B3464EB', '256', 'CBC', '00000000000000000000000000000000');
+        });
+    </script>
+</body>
+</html>
