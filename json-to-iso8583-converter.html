@@ -697,8 +697,8 @@
                 const deNum = de.replace('DE', '');
                 const desc = commonDEs.find(item => item.de === de)?.desc || 'Unknown';
                 html += `<div class="iso-field">
-                    <span class="field-label">${de}:</span>
-                    <span class="field-value">${isoData[de]} <em>(${desc})</em></span>
+                    <span class="field-label">${de} <em>(${desc})</em>:</span>
+                    <span class="field-value">${isoData[de]}</span>
                 </div>`;
             });
             
